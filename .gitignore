@@ -1,0 +1,4 @@
+.workbuddy/
+docs/*.md
+*.pro.user
+output/
