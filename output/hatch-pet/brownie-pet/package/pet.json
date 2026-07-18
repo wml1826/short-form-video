@@ -1,0 +1,7 @@
+{
+  "id": "brownie-pet",
+  "displayName": "Brownie",
+  "description": "A soft chubby little coding buddy based on your reference character.",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.webp"
+}
