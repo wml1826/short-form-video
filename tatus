@@ -1,0 +1,358 @@
+[33mcommit 6011255275965d7b046c47202b52c30eb1da0969[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: wml1826 <2374413233@qq.com>
+Date:   Sat Jul 18 09:33:59 2026 +0800
+
+    Initial commit
+
+ .workbuddy/memory/2026-07-01.md                    |    43 [32m+[m
+ .workbuddy/memory/2026-07-13.md                    |    45 [32m+[m
+ .workbuddy/memory/MEMORY.md                        |    11 [32m+[m
+ MediaPlay.pro                                      |    81 [32m+[m
+ MediaPlay.pro.user                                 |   327 [32m+[m
+ PacketQueue.cpp                                    |    98 [32m+[m
+ PacketQueue.h                                      |    48 [32m+[m
+ SDL2-2.0.10/bin/SDL2.dll                           |   Bin [31m0[m -> [32m1156096[m bytes
+ SDL2-2.0.10/include/SDL.h                          |   135 [32m+[m
+ SDL2-2.0.10/include/SDL_assert.h                   |   291 [32m+[m
+ SDL2-2.0.10/include/SDL_atomic.h                   |   295 [32m+[m
+ SDL2-2.0.10/include/SDL_audio.h                    |   859 [32m++[m
+ SDL2-2.0.10/include/SDL_bits.h                     |   121 [32m+[m
+ SDL2-2.0.10/include/SDL_blendmode.h                |   120 [32m+[m
+ SDL2-2.0.10/include/SDL_clipboard.h                |    71 [32m+[m
+ SDL2-2.0.10/include/SDL_config.h                   |   257 [32m+[m
+ SDL2-2.0.10/include/SDL_config.h.cmake             |   445 [32m+[m
+ SDL2-2.0.10/include/SDL_config.h.in                |   389 [32m+[m
+ SDL2-2.0.10/include/SDL_config_android.h           |   157 [32m+[m
+ SDL2-2.0.10/include/SDL_config_iphoneos.h          |   166 [32m+[m
+ SDL2-2.0.10/include/SDL_config_macosx.h            |   197 [32m+[m
+ SDL2-2.0.10/include/SDL_config_macosx.h.orig       |   197 [32m+[m
+ SDL2-2.0.10/include/SDL_config_minimal.h           |    82 [32m+[m
+ SDL2-2.0.10/include/SDL_config_pandora.h           |   128 [32m+[m
+ SDL2-2.0.10/include/SDL_config_psp.h               |   144 [32m+[m
+ SDL2-2.0.10/include/SDL_config_windows.h           |   225 [32m+[m
+ SDL2-2.0.10/include/SDL_config_winrt.h             |   215 [32m+[m
+ SDL2-2.0.10/include/SDL_config_wiz.h               |   121 [32m+[m
+ SDL2-2.0.10/include/SDL_copying.h                  |    20 [32m+[m
+ SDL2-2.0.10/include/SDL_cpuinfo.h                  |   270 [32m+[m
+ SDL2-2.0.10/include/SDL_egl.h                      |  1673 [32m+++[m
+ SDL2-2.0.10/include/SDL_endian.h                   |   260 [32m+[m
+ SDL2-2.0.10/include/SDL_error.h                    |    76 [32m+[m
+ SDL2-2.0.10/include/SDL_events.h                   |   791 [32m++[m
+ SDL2-2.0.10/include/SDL_filesystem.h               |   136 [32m+[m
+ SDL2-2.0.10/include/SDL_gamecontroller.h           |   390 [32m+[m
+ SDL2-2.0.10/include/SDL_gesture.h                  |    87 [32m+[m
+ SDL2-2.0.10/include/SDL_haptic.h                   |  1238 [32m++[m
+ SDL2-2.0.10/include/SDL_hints.h                    |  1266 [32m+++[m
+ SDL2-2.0.10/include/SDL_joystick.h                 |   408 [32m+[m
+ SDL2-2.0.10/include/SDL_keyboard.h                 |   217 [32m+[m
+ SDL2-2.0.10/include/SDL_keycode.h                  |   349 [32m+[m
+ SDL2-2.0.10/include/SDL_loadso.h                   |    81 [32m+[m
+ SDL2-2.0.10/include/SDL_log.h                      |   211 [32m+[m
+ SDL2-2.0.10/include/SDL_main.h                     |   180 [32m+[m
+ SDL2-2.0.10/include/SDL_messagebox.h               |   144 [32m+[m
+ SDL2-2.0.10/include/SDL_mouse.h                    |   302 [32m+[m
+ SDL2-2.0.10/include/SDL_mutex.h                    |   251 [32m+[m
+ SDL2-2.0.10/include/SDL_name.h                     |    33 [32m+[m
+ SDL2-2.0.10/include/SDL_opengl.h                   |  2183 [32m++++[m
+ SDL2-2.0.10/include/SDL_opengl_glext.h             | 11177 [32m+++++++++++++++++++[m
+ SDL2-2.0.10/include/SDL_opengles.h                 |    39 [32m+[m
+ SDL2-2.0.10/include/SDL_opengles2.h                |    52 [32m+[m
+ SDL2-2.0.10/include/SDL_opengles2_gl2.h            |   621 [32m++[m
+ SDL2-2.0.10/include/SDL_opengles2_gl2ext.h         |  2050 [32m++++[m
+ SDL2-2.0.10/include/SDL_opengles2_gl2platform.h    |    30 [32m+[m
+ SDL2-2.0.10/include/SDL_opengles2_khrplatform.h    |   282 [32m+[m
+ SDL2-2.0.10/include/SDL_pixels.h                   |   470 [32m+[m
+ SDL2-2.0.10/include/SDL_platform.h                 |   198 [32m+[m
+ SDL2-2.0.10/include/SDL_power.h                    |    75 [32m+[m
+ SDL2-2.0.10/include/SDL_quit.h                     |    58 [32m+[m
+ SDL2-2.0.10/include/SDL_rect.h                     |   174 [32m+[m
+ SDL2-2.0.10/include/SDL_render.h                   |  1098 [32m++[m
+ SDL2-2.0.10/include/SDL_revision.h                 |     2 [32m+[m
+ SDL2-2.0.10/include/SDL_rwops.h                    |   291 [32m+[m
+ SDL2-2.0.10/include/SDL_scancode.h                 |   413 [32m+[m
+ SDL2-2.0.10/include/SDL_sensor.h                   |   251 [32m+[m
+ SDL2-2.0.10/include/SDL_shape.h                    |   144 [32m+[m
+ SDL2-2.0.10/include/SDL_stdinc.h                   |   607 [32m+[m
+ SDL2-2.0.10/include/SDL_surface.h                  |   554 [32m+[m
+ SDL2-2.0.10/include/SDL_system.h                   |   279 [32m+[m
+ SDL2-2.0.10/include/SDL_syswm.h                    |   327 [32m+[m
+ SDL2-2.0.10/include/SDL_test.h                     |    69 [32m+[m
+ SDL2-2.0.10/include/SDL_test_assert.h              |   105 [32m+[m
+ SDL2-2.0.10/include/SDL_test_common.h              |   205 [32m+[m
+ SDL2-2.0.10/include/SDL_test_compare.h             |    69 [32m+[m
+ SDL2-2.0.10/include/SDL_test_crc32.h               |   124 [32m+[m
+ SDL2-2.0.10/include/SDL_test_font.h                |    81 [32m+[m
+ SDL2-2.0.10/include/SDL_test_fuzzer.h              |   384 [32m+[m
+ SDL2-2.0.10/include/SDL_test_harness.h             |   134 [32m+[m
+ SDL2-2.0.10/include/SDL_test_images.h              |    78 [32m+[m
+ SDL2-2.0.10/include/SDL_test_log.h                 |    67 [32m+[m
+ SDL2-2.0.10/include/SDL_test_md5.h                 |   129 [32m+[m
+ SDL2-2.0.10/include/SDL_test_memory.h              |    63 [32m+[m
+ SDL2-2.0.10/include/SDL_test_random.h              |   115 [32m+[m
+ SDL2-2.0.10/include/SDL_thread.h                   |   343 [32m+[m
+ SDL2-2.0.10/include/SDL_timer.h                    |   115 [32m+[m
+ SDL2-2.0.10/include/SDL_touch.h                    |   102 [32m+[m
+ SDL2-2.0.10/include/SDL_types.h                    |    29 [32m+[m
+ SDL2-2.0.10/include/SDL_version.h                  |   162 [32m+[m
+ SDL2-2.0.10/include/SDL_video.h                    |  1276 [32m+++[m
+ SDL2-2.0.10/include/SDL_vulkan.h                   |   278 [32m+[m
+ SDL2-2.0.10/include/begin_code.h                   |   170 [32m+[m
+ SDL2-2.0.10/include/close_code.h                   |    40 [32m+[m
+ SDL2-2.0.10/lib/x64/SDL2.dll                       |   Bin [31m0[m -> [32m1401344[m bytes
+ SDL2-2.0.10/lib/x64/SDL2.lib                       |   Bin [31m0[m -> [32m145280[m bytes
+ SDL2-2.0.10/lib/x64/SDL2main.lib                   |   Bin [31m0[m -> [32m41244[m bytes
+ SDL2-2.0.10/lib/x64/SDL2test.lib                   |   Bin [31m0[m -> [32m924400[m bytes
+ SDL2-2.0.10/lib/x86/SDL2.dll                       |   Bin [31m0[m -> [32m1156096[m bytes
+ SDL2-2.0.10/lib/x86/SDL2.lib                       |   Bin [31m0[m -> [32m148700[m bytes
+ SDL2-2.0.10/lib/x86/SDL2main.lib                   |   Bin [31m0[m -> [32m41932[m bytes
+ SDL2-2.0.10/lib/x86/SDL2test.lib                   |   Bin [31m0[m -> [32m897336[m bytes
+ audio_read.cpp                                     |   197 [32m+[m
+ audio_read.h                                       |    57 [32m+[m
+ common.h                                           |    33 [32m+[m
+ dll/avcodec-58.dll                                 |   Bin [31m0[m -> [32m31620096[m bytes
+ dll/avdevice-58.dll                                |   Bin [31m0[m -> [32m1513984[m bytes
+ dll/avfilter-7.dll                                 |   Bin [31m0[m -> [32m7353856[m bytes
+ dll/avformat-58.dll                                |   Bin [31m0[m -> [32m9960448[m bytes
+ dll/avutil-56.dll                                  |   Bin [31m0[m -> [32m780288[m bytes
+ dll/ffmpeg.exe                                     |   Bin [31m0[m -> [32m293888[m bytes
+ dll/ffplay.exe                                     |   Bin [31m0[m -> [32m147968[m bytes
+ dll/ffprobe.exe                                    |   Bin [31m0[m -> [32m166400[m bytes
+ dll/libopencv_calib3d420.dll                       |   Bin [31m0[m -> [32m2712585[m bytes
+ dll/libopencv_core420.dll                          |   Bin [31m0[m -> [32m6269989[m bytes
+ dll/libopencv_dnn420.dll                           |   Bin [31m0[m -> [32m8627098[m bytes
+ dll/libopencv_features2d420.dll                    |   Bin [31m0[m -> [32m1474179[m bytes
+ dll/libopencv_flann420.dll                         |   Bin [31m0[m -> [32m875579[m bytes
+ dll/libopencv_gapi420.dll                          |   Bin [31m0[m -> [32m4918303[m bytes
+ dll/libopencv_highgui420.dll                       |   Bin [31m0[m -> [32m742308[m bytes
+ dll/libopencv_imgcodecs420.dll                     |   Bin [31m0[m -> [32m5843752[m bytes
+ dll/libopencv_imgproc420.dll                       |   Bin [31m0[m -> [32m8892234[m bytes
+ dll/libopencv_ml420.dll                            |   Bin [31m0[m -> [32m1286602[m bytes
+ dll/libopencv_objdetect420.dll                     |   Bin [31m0[m -> [32m879369[m bytes
+ dll/libopencv_photo420.dll                         |   Bin [31m0[m -> [32m1402061[m bytes
+ dll/libopencv_stitching420.dll                     |   Bin [31m0[m -> [32m1527904[m bytes
+ dll/libopencv_video420.dll                         |   Bin [31m0[m -> [32m905895[m bytes
+ dll/libopencv_videoio420.dll                       |   Bin [31m0[m -> [32m876769[m bytes
+ dll/opencv_annotation.exe                          |   Bin [31m0[m -> [32m80046[m bytes
+ dll/opencv_interactive-calibration.exe             |   Bin [31m0[m -> [32m247895[m bytes
+ dll/opencv_version.exe                             |   Bin [31m0[m -> [32m115288[m bytes
+ dll/opencv_version_win32.exe                       |   Bin [31m0[m -> [32m112673[m bytes
+ dll/opencv_visualisation.exe                       |   Bin [31m0[m -> [32m94425[m bytes
+ dll/postproc-55.dll                                |   Bin [31m0[m -> [32m125440[m bytes
+ dll/swresample-3.dll                               |   Bin [31m0[m -> [32m316416[m bytes
+ dll/swscale-5.dll                                  |   Bin [31m0[m -> [32m518144[m bytes
+ docs/av_sync.md                                    |   320 [32m+[m
+ docs/decode_pipeline.md                            |   336 [32m+[m
+ docs/live_stream_feature.md                        |  1088 [32m++[m
+ ...274\230\345\214\226\345\273\272\350\256\256.md" |    65 [32m+[m
+ ...227\256\351\242\230\347\255\224\346\241\210.md" |   154 [32m+[m
+ ...265\201\347\250\213\350\256\262\350\247\243.md" |   409 [32m+[m
+ ffmpeg-4.2.2/bin/avcodec-58.dll                    |   Bin [31m0[m -> [32m31620096[m bytes
+ ffmpeg-4.2.2/bin/avdevice-58.dll                   |   Bin [31m0[m -> [32m1513984[m bytes
+ ffmpeg-4.2.2/bin/avfilter-7.dll                    |   Bin [31m0[m -> [32m7353856[m bytes
+ ffmpeg-4.2.2/bin/avformat-58.dll                   |   Bin [31m0[m -> [32m9960448[m bytes
+ ffmpeg-4.2.2/bin/avutil-56.dll                     |   Bin [31m0[m -> [32m780288[m bytes
+ ffmpeg-4.2.2/bin/ffmpeg.exe                        |   Bin [31m0[m -> [32m293888[m bytes
+ ffmpeg-4.2.2/bin/ffplay.exe                        |   Bin [31m0[m -> [32m147968[m bytes
+ ffmpeg-4.2.2/bin/ffprobe.exe                       |   Bin [31m0[m -> [32m166400[m bytes
+ ffmpeg-4.2.2/bin/postproc-55.dll                   |   Bin [31m0[m -> [32m125440[m bytes
+ ffmpeg-4.2.2/bin/swresample-3.dll                  |   Bin [31m0[m -> [32m316416[m bytes
+ ffmpeg-4.2.2/bin/swscale-5.dll                     |   Bin [31m0[m -> [32m518144[m bytes
+ ffmpeg-4.2.2/include/libavcodec/ac3_parser.h       |    36 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/adts_parser.h      |    37 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/avcodec.h          |  6299 [32m+++++++++++[m
+ ffmpeg-4.2.2/include/libavcodec/avdct.h            |    84 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/avfft.h            |   118 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/d3d11va.h          |   112 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/dirac.h            |   131 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/dv_profile.h       |    83 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/dxva2.h            |    93 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/jni.h              |    46 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/mediacodec.h       |   101 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/qsv.h              |   107 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/vaapi.h            |    86 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/vdpau.h            |   176 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/version.h          |   140 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/videotoolbox.h     |   127 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/vorbis_parser.h    |    74 [32m+[m
+ ffmpeg-4.2.2/include/libavcodec/xvmc.h             |   170 [32m+[m
+ ffmpeg-4.2.2/include/libavdevice/avdevice.h        |   514 [32m+[m
+ ffmpeg-4.2.2/include/libavdevice/version.h         |    50 [32m+[m
+ ffmpeg-4.2.2/include/libavfilter/avfilter.h        |  1168 [32m++[m
+ ffmpeg-4.2.2/include/libavfilter/buffersink.h      |   169 [32m+[m
+ ffmpeg-4.2.2/include/libavfilter/buffersrc.h       |   209 [32m+[m
+ ffmpeg-4.2.2/include/libavfilter/version.h         |    69 [32m+[m
+ ffmpeg-4.2.2/include/libavformat/avformat.h        |  3098 [32m+++++[m
+ ffmpeg-4.2.2/include/libavformat/avio.h            |   888 [32m++[m
+ ffmpeg-4.2.2/include/libavformat/version.h         |   114 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/adler32.h           |    60 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/aes.h               |    65 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/aes_ctr.h           |    88 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/attributes.h        |   167 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/audio_fifo.h        |   187 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/avassert.h          |    75 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/avconfig.h          |     6 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/avstring.h          |   418 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/avutil.h            |   365 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/base64.h            |    72 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/blowfish.h          |    82 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/bprint.h            |   219 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/bswap.h             |   109 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/buffer.h            |   304 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/camellia.h          |    70 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/cast5.h             |    80 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/channel_layout.h    |   232 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/common.h            |   562 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/cpu.h               |   130 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/crc.h               |   100 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/des.h               |    77 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/dict.h              |   200 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/display.h           |   114 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/downmix_info.h      |   115 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/encryption_info.h   |   205 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/error.h             |   126 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/eval.h              |   137 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/ffversion.h         |     5 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/fifo.h              |   179 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/file.h              |    71 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/frame.h             |   970 [32m++[m
+ ffmpeg-4.2.2/include/libavutil/hash.h              |   269 [32m+[m
+ .../include/libavutil/hdr_dynamic_metadata.h       |   343 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hmac.h              |   100 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hwcontext.h         |   585 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hwcontext_cuda.h    |    69 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hwcontext_d3d11va.h |   169 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hwcontext_drm.h     |   169 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hwcontext_dxva2.h   |    75 [32m+[m
+ .../include/libavutil/hwcontext_mediacodec.h       |    36 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hwcontext_qsv.h     |    53 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hwcontext_vaapi.h   |   117 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hwcontext_vdpau.h   |    44 [32m+[m
+ .../include/libavutil/hwcontext_videotoolbox.h     |    60 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/hwcontext_vulkan.h  |   158 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/imgutils.h          |   277 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/intfloat.h          |    77 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/intreadwrite.h      |   644 [32m++[m
+ ffmpeg-4.2.2/include/libavutil/lfg.h               |    80 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/log.h               |   383 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/lzo.h               |    66 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/macros.h            |    50 [32m+[m
+ .../include/libavutil/mastering_display_metadata.h |   128 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/mathematics.h       |   242 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/md5.h               |    98 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/mem.h               |   700 [32m++[m
+ ffmpeg-4.2.2/include/libavutil/motion_vector.h     |    57 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/murmur3.h           |   120 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/opt.h               |   870 [32m++[m
+ ffmpeg-4.2.2/include/libavutil/parseutils.h        |   193 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/pixdesc.h           |   440 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/pixelutils.h        |    52 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/pixfmt.h            |   565 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/random_seed.h       |    43 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/rational.h          |   214 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/rc4.h               |    66 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/replaygain.h        |    50 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/ripemd.h            |    87 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/samplefmt.h         |   272 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/sha.h               |    95 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/sha512.h            |    97 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/spherical.h         |   232 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/stereo3d.h          |   233 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/tea.h               |    71 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/threadmessage.h     |   115 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/time.h              |    56 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/timecode.h          |   140 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/timestamp.h         |    78 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/tree.h              |   138 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/twofish.h           |    70 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/tx.h                |   106 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/version.h           |   139 [32m+[m
+ ffmpeg-4.2.2/include/libavutil/xtea.h              |    94 [32m+[m
+ ffmpeg-4.2.2/include/libpostproc/postprocess.h     |   107 [32m+[m
+ ffmpeg-4.2.2/include/libpostproc/version.h         |    45 [32m+[m
+ ffmpeg-4.2.2/include/libswresample/swresample.h    |   579 [32m+[m
+ ffmpeg-4.2.2/include/libswresample/version.h       |    45 [32m+[m
+ ffmpeg-4.2.2/include/libswscale/swscale.h          |   336 [32m+[m
+ ffmpeg-4.2.2/include/libswscale/version.h          |    53 [32m+[m
+ ffmpeg-4.2.2/lib/avcodec-58.def                    |   239 [32m+[m
+ ffmpeg-4.2.2/lib/avcodec.lib                       |   Bin [31m0[m -> [32m185364[m bytes
+ ffmpeg-4.2.2/lib/avdevice-58.def                   |    19 [32m+[m
+ ffmpeg-4.2.2/lib/avdevice.lib                      |   Bin [31m0[m -> [32m15798[m bytes
+ ffmpeg-4.2.2/lib/avfilter-7.def                    |    70 [32m+[m
+ ffmpeg-4.2.2/lib/avfilter.lib                      |   Bin [31m0[m -> [32m55534[m bytes
+ ffmpeg-4.2.2/lib/avformat-58.def                   |   177 [32m+[m
+ ffmpeg-4.2.2/lib/avformat.lib                      |   Bin [31m0[m -> [32m135850[m bytes
+ ffmpeg-4.2.2/lib/avutil-56.def                     |   540 [32m+[m
+ ffmpeg-4.2.2/lib/avutil.lib                        |   Bin [31m0[m -> [32m408590[m bytes
+ ffmpeg-4.2.2/lib/libavcodec.dll.a                  |   Bin [31m0[m -> [32m704962[m bytes
+ ffmpeg-4.2.2/lib/libavdevice.dll.a                 |   Bin [31m0[m -> [32m464720[m bytes
+ ffmpeg-4.2.2/lib/libavfilter.dll.a                 |   Bin [31m0[m -> [32m47390[m bytes
+ ffmpeg-4.2.2/lib/libavformat.dll.a                 |   Bin [31m0[m -> [32m141276[m bytes
+ ffmpeg-4.2.2/lib/libavutil.dll.a                   |   Bin [31m0[m -> [32m351852[m bytes
+ ffmpeg-4.2.2/lib/libpostproc.dll.a                 |   Bin [31m0[m -> [32m7286[m bytes
+ ffmpeg-4.2.2/lib/libswresample.dll.a               |   Bin [31m0[m -> [32m15534[m bytes
+ ffmpeg-4.2.2/lib/libswscale.dll.a                  |   Bin [31m0[m -> [32m22774[m bytes
+ ffmpeg-4.2.2/lib/postproc-55.def                   |    11 [32m+[m
+ ffmpeg-4.2.2/lib/postproc.lib                      |   Bin [31m0[m -> [32m9034[m bytes
+ ffmpeg-4.2.2/lib/swresample-3.def                  |    24 [32m+[m
+ ffmpeg-4.2.2/lib/swresample.lib                    |   Bin [31m0[m -> [32m18766[m bytes
+ ffmpeg-4.2.2/lib/swscale-5.def                     |    35 [32m+[m
+ ffmpeg-4.2.2/lib/swscale.lib                       |   Bin [31m0[m -> [32m27064[m bytes
+ livedialog.cpp                                     |   242 [32m+[m
+ livedialog.h                                       |    70 [32m+[m
+ livedialog.ui                                      |    94 [32m+[m
+ logindialog.cpp                                    |   153 [32m+[m
+ logindialog.h                                      |    51 [32m+[m
+ logindialog.ui                                     |   339 [32m+[m
+ main.cpp                                           |    23 [32m+[m
+ movielable.cpp                                     |    80 [32m+[m
+ movielable.h                                       |    38 [32m+[m
+ movielable.ui                                      |    46 [32m+[m
+ netapi/mediator/INetMediator.cpp                   |    13 [32m+[m
+ netapi/mediator/INetMediator.h                     |    46 [32m+[m
+ netapi/mediator/TcpClientMediator.cpp              |    71 [32m+[m
+ netapi/mediator/TcpClientMediator.h                |    25 [32m+[m
+ netapi/mediator/TcpServerMediator.cpp              |    44 [32m+[m
+ netapi/mediator/TcpServerMediator.h                |    23 [32m+[m
+ netapi/mediator/UdpMediator.cpp                    |    40 [32m+[m
+ netapi/mediator/UdpMediator.h                      |    20 [32m+[m
+ netapi/net/INet.cpp                                |    35 [32m+[m
+ netapi/net/INet.h                                  |    41 [32m+[m
+ netapi/net/TcpClient.cpp                           |   214 [32m+[m
+ netapi/net/TcpClient.h                             |    30 [32m+[m
+ netapi/net/TcpServer.cpp                           |   216 [32m+[m
+ netapi/net/TcpServer.h                             |    38 [32m+[m
+ netapi/net/UdpNet.cpp                              |   139 [32m+[m
+ netapi/net/UdpNet.h                                |    26 [32m+[m
+ netapi/net/packdef.h                               |   295 [32m+[m
+ netapi/netapi.pri                                  |    26 [32m+[m
+ onlinedialog.cpp                                   |   506 [32m+[m
+ onlinedialog.h                                     |    87 [32m+[m
+ onlinedialog.ui                                    |   478 [32m+[m
+ opengl/myopenglwidget.cpp                          |    95 [32m+[m
+ opengl/myopenglwidget.h                            |    34 [32m+[m
+ opengl/opengl.pri                                  |    10 [32m+[m
+ output/hatch-pet/brownie-pet/final/spritesheet.png |   Bin [31m0[m -> [32m83710[m bytes
+ output/hatch-pet/brownie-pet/final/validation.json |   808 [32m++[m
+ output/hatch-pet/brownie-pet/package/pet.json      |     7 [32m+[m
+ .../hatch-pet/brownie-pet/package/spritesheet.webp |   Bin [31m0[m -> [32m25478[m bytes
+ output/hatch-pet/brownie-pet/summary.json          |     5 [32m+[m
+ picinpic_read.cpp                                  |   129 [32m+[m
+ picinpic_read.h                                    |    41 [32m+[m
+ picturewidget.cpp                                  |    27 [32m+[m
+ picturewidget.h                                    |    23 [32m+[m
+ picturewidget.ui                                   |    58 [32m+[m
+ playerdialog.cpp                                   |   243 [32m+[m
+ playerdialog.h                                     |    57 [32m+[m
+ playerdialog.ui                                    |   174 [32m+[m
+ recorderdialog.cpp                                 |    79 [32m+[m
+ recorderdialog.h                                   |    37 [32m+[m
+ recorderdialog.ui                                  |   248 [32m+[m
+ savevideofilethread.cpp                            |   628 [32m++[m
+ savevideofilethread.h                              |   120 [32m+[m
+ tools/generate_brownie_pet.py                      |   301 [32m+[m
+ uploaddialog.cpp                                   |   250 [32m+[m
+ uploaddialog.h                                     |    46 [32m+[m
+ uploaddialog.ui                                    |   281 [32m+[m
+ videoplayer.cpp                                    |   812 [32m++[m
+ videoplayer.h                                      |   122 [32m+[m
+ 351 files changed, 81861 insertions(+)

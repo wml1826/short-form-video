@@ -11,6 +11,7 @@ CONFIG += c++11
 
 SOURCES += \
     PacketQueue.cpp \
+    UploadDraftManager.cpp \
     audio_read.cpp \
     livedialog.cpp \
     logindialog.cpp \
@@ -27,6 +28,7 @@ SOURCES += \
 
 HEADERS += \
     PacketQueue.h \
+    UploadDraftManager.h \
     audio_read.h \
     common.h \
     livedialog.h \

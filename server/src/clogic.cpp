@@ -4,7 +4,7 @@ void CLogic::setNetPackMap()
 {
     NetPackMap(_DEF_PACK_REGISTER_RQ)    = &CLogic::RegisterRq;
     NetPackMap(_DEF_PACK_LOGIN_RQ)       = &CLogic::LoginRq;
-    NetPackMap(_DEF_PACK_UPLOAD_RQ)      =&CLogic::UploadRq;
+    NetPackMap(_DEF_PACK_UPLOAD_RESUME_RQ) =&CLogic::UploadResumeRq;
     NetPackMap(_DEF_PACK_FILEBLOCK_RQ)   =&CLogic::UploadBlockRq;
     NetPackMap(DEF_PACK_DOWNLOAD_RQ)     =&CLogic::DownloadRq;
     NetPackMap(_DEF_PACK_UPLOADHISTORY_RQ) = &CLogic::UploadHistoryRq;
@@ -20,7 +20,14 @@ void CLogic::close()
 {
     for(auto ite=m_mapFileIDToFileInfo.begin();ite!=m_mapFileIDToFileInfo.end();++ite)
     {
-        delete ite->second;
+        if(ite->second){
+            if(ite->second->pFile)
+            {
+                fclose(ite->second->pFile);
+                ite->second->pFile=NULL;
+            }
+            delete ite->second;
+        }
     }
     m_mapFileIDToFileInfo.clear();
     m_mapIDToUserFD.clear();
@@ -30,8 +37,8 @@ void CLogic::close()
 void CLogic::RegisterRq(sock_fd clientfd,char* szbuf,int nlen)
 {
     _DEF_COUT_FUNC_
-   
-    STRU_REGISTER_RQ*rq=(STRU_REGISTER_RQ*)szbuf;
+
+            STRU_REGISTER_RQ*rq=(STRU_REGISTER_RQ*)szbuf;
     STRU_REGISTER_RS rs;
 
     char sqlBuf[ _DEF_SQLIEN]=" ";
@@ -58,7 +65,7 @@ void CLogic::RegisterRq(sock_fd clientfd,char* szbuf,int nlen)
         if(resID.size()>0){
             id=atoi(resID.front().c_str());
         }
-       // rs.userid=id;
+        // rs.userid=id;
 
         //新注册的用户创建一个路径
         char path[_MAX_PATH]="";
@@ -76,7 +83,7 @@ void CLogic::RegisterRq(sock_fd clientfd,char* szbuf,int nlen)
 void CLogic::LoginRq(sock_fd clientfd ,char* szbuf,int nlen)
 {
     _DEF_COUT_FUNC_
-    STRU_LOGIN_RQ*rq=(STRU_LOGIN_RQ*)szbuf;
+            STRU_LOGIN_RQ*rq=(STRU_LOGIN_RQ*)szbuf;
     STRU_LOGIN_RS rs;
     char sqlBuf[ _DEF_SQLIEN]=" ";
     sprintf(sqlBuf,"select password,id from t_UserData where name='%s';",rq->user);
@@ -105,175 +112,274 @@ void CLogic::LoginRq(sock_fd clientfd ,char* szbuf,int nlen)
     m_tcp->SendData( clientfd , (char*)&rs , sizeof rs );
 }
 //上传请求
-void CLogic::UploadRq(sock_fd clientfd, char *szbuf, int nlen)
+void CLogic::UploadResumeRq(sock_fd clientfd, char *szbuf, int nlen)
 {
     _DEF_COUT_FUNC_
 
-    STRU_UPLOAD_RQ *rq=(STRU_UPLOAD_RQ*)szbuf;
+            // ★ 包长度校验
+            if (nlen < (int)sizeof(STRU_UPLOAD_RESUME_RQ)) {
+        cout << "[UploadResumeRq] nlen too small: " << nlen << endl;
+        return;
+    }
 
-    FileInfo *info=new FileInfo;
-    info->m_nPos=0;
-    memcpy(info->m_Hobby,rq->m_szHobby,DEF_HOBBY_COUNT);
+    STRU_UPLOAD_RESUME_RQ *rq = (STRU_UPLOAD_RESUME_RQ*)szbuf;
 
+    // ★ 清理同名旧 entry（防 fileId 冲突 + 断线后旧 entry 残留）
+    for (auto it = m_mapFileIDToFileInfo.begin();
+         it != m_mapFileIDToFileInfo.end(); ++it) {
+        FileInfo* old = it->second;
+        if (old && old->m_nUserId == rq->m_UserId
+                && strcmp(old->m_szFileName, rq->m_szFileName) == 0) {
+            if (old->pFile) { fclose(old->pFile); old->pFile = NULL; }
+            m_mapFileIDToFileInfo.erase(it);
+            delete old;
+            break;
+        }
+    }
+
+    FileInfo *info = new FileInfo;
+    info->m_nPos = 0;
+    memcpy(info->m_Hobby, rq->m_szHobby, DEF_HOBBY_COUNT);
     info->m_nUserId = rq->m_UserId;
     info->m_nFileID = rq->m_nFileId;
     info->m_VideoID = 0;
-
     info->m_nFileSize = rq->m_nFileSize;
+    strncpy(info->m_szFileName, rq->m_szFileName, _MAX_PATH - 1);
+    info->m_szFileName[_MAX_PATH - 1] = '\0';
+    strncpy(info->m_szFileType, rq->m_szFileType, _MAX_SIZE - 1);
+    info->m_szFileType[_MAX_SIZE - 1] = '\0';
 
-
-    strcpy(info->m_szFileName, rq->m_szFileName);
-    strcpy(info->m_szFileType, rq->m_szFileType);
-
-    //找到用户名
+    // 查用户名
     char sqlBuf[_DEF_SQLIEN] = "";
     sprintf(sqlBuf, "select name from t_UserData where id = %d;", info->m_nUserId);
     list<string> resList;
-    if(!m_sql->SelectMysql(sqlBuf, 1, resList))
-    {
-        cout<<"SelectMysql error:"<<sqlBuf<<endl;
+    if (!m_sql->SelectMysql(sqlBuf, 1, resList)) {
+        cout << "SelectMysql error:" << sqlBuf << endl;
         delete info;
         return;
     }
-    if(resList.size()<=0)
-    {
+    if (resList.size() <= 0) {
         delete info;
         return;
     }
+    strcpy(info->m_UserName, resList.front().c_str());
+    sprintf(info->m_szFilePath, "%sflv/%s/%s",
+            RootPath, info->m_UserName, info->m_szFileName);
+    sprintf(info->m_szRtmp, "//%s/%s",
+            info->m_UserName, info->m_szFileName);
 
-    strcpy(info->m_UserName,resList.front().c_str());
-    sprintf(info->m_szFilePath,"%sflv/%s/%s",RootPath,info->m_UserName,info->m_szFileName);
-    sprintf( info->m_szRtmp,"//%s/%s",info->m_UserName,info->m_szFileName);
-
-    if(strcmp(rq->m_szFileType, "gif") != 0)
-    {
-        strcpy(info->m_szGifName, rq->m_szGifName);
-        sprintf(info->m_szGifPath,"%sflv/%s/%s",RootPath,info->m_UserName,info->m_szGifName);
+    if (strcmp(rq->m_szFileType, "gif") != 0) {
+        strncpy(info->m_szGifName, rq->m_szGifName, _MAX_PATH - 1);
+        info->m_szGifName[_MAX_PATH - 1] = '\0';
+        sprintf(info->m_szGifPath, "%sflv/%s/%s",
+                RootPath, info->m_UserName, info->m_szGifName);
     }
-   info->pFile=fopen(info->m_szFilePath,"w");
 
-   m_mapFileIDToFileInfo[info->m_nFileID]=info;
+    // ★★★ 断点续传核心：检查 .part 文件 ★★★
+    char partPath[_MAX_PATH];
+    sprintf(partPath, "%sflv/%s/%s.part",
+            RootPath, info->m_UserName, info->m_szFileName);
+
+    STRU_UPLOAD_RESUME_RS rs;
+    rs.m_nType = _DEF_PACK_UPLOAD_RESUME_RS;
+    rs.m_nFileId = info->m_nFileID;
+    rs.m_nResult = upload_resume_new;
+    rs.m_nResumeFrom = 0;
+
+    if (access(partPath, F_OK) == 0) {
+        info->pFile = fopen(partPath, "rb+");
+        if (info->pFile) {
+            fseek(info->pFile, 0, SEEK_END);
+            int64_t actualSize = ftell(info->pFile);
+            if (actualSize > info->m_nFileSize) {
+                fclose(info->pFile);
+                info->pFile = fopen(partPath, "wb");
+                info->m_nPos = 0;
+                rs.m_nResult = upload_resume_new;
+            } else if (actualSize == info->m_nFileSize) {
+                fclose(info->pFile);
+                info->pFile = fopen(partPath, "wb");
+                info->m_nPos = 0;
+                rs.m_nResult = upload_resume_new;
+            } else {
+                info->m_nPos = actualSize;
+                rs.m_nResult = upload_resume_resume;
+                rs.m_nResumeFrom = actualSize;
+                cout << "[UploadResumeRq] 续传，从 " << actualSize << " 继续" << endl;
+            }
+        } else {
+            info->pFile = fopen(partPath, "wb");
+        }
+    } else {
+        info->pFile = fopen(partPath, "wb");
+    }
+
+    m_mapFileIDToFileInfo[info->m_nFileID] = info;
+    m_tcp->SendData(clientfd, (char*)&rs, sizeof(rs));
 }
 //上传的文件块
 void CLogic::UploadBlockRq(sock_fd clientfd, char *szbuf, int nlen)
 {
-     _DEF_COUT_FUNC_
+    _DEF_COUT_FUNC_
 
-     STRU_FILEBLOCK_RQ *rq = (STRU_FILEBLOCK_RQ *)szbuf;
-     if (m_mapFileIDToFileInfo.find(rq->m_nFileId) == m_mapFileIDToFileInfo.end())
-         return;
+            // ★ 包长度校验
+            if (nlen < (int)sizeof(STRU_FILEBLOCK_RQ)) {
+        cout << "[UploadBlockRq] nlen too small: " << nlen << endl;
+        return;
+    }
 
-     FileInfo* info = m_mapFileIDToFileInfo[rq->m_nFileId];
+    STRU_FILEBLOCK_RQ *rq = (STRU_FILEBLOCK_RQ *)szbuf;
+    auto it = m_mapFileIDToFileInfo.find(rq->m_nFileId);
+    if (it == m_mapFileIDToFileInfo.end()) return;
+    FileInfo* info = it->second;
+    if (!info->pFile) return;
 
-     int64_t res = fwrite(rq->m_szFileContent, 1, rq->m_nBlockLen, info->pFile);
-     info->m_nPos += res;
+    // ★ 边界检查
+    if (rq->m_nOffset < 0 || rq->m_nOffset > info->m_nFileSize) return;
+    if (rq->m_nOffset + rq->m_nBlockLen > info->m_nFileSize) return;
 
-     if (rq->m_nBlockLen < _DEF_CONTENT_SIZE || info->m_nPos >= info->m_nFileSize)
-     {
-         // 写完了
-         fclose(info->pFile);
+    // ★ fseek + fwrite + fflush
+    fseek(info->pFile, rq->m_nOffset, SEEK_SET);
+    size_t w = fwrite(rq->m_szFileContent, 1, rq->m_nBlockLen, info->pFile);
+    if (w != (size_t)rq->m_nBlockLen) return;
+    fflush(info->pFile);
 
-         // 判断 不是gif 写表记录  返回信息
-         if (strcmp(info->m_szFileType, "gif") != 0)
-         {
-             // 写表
-             char sqlBuf[_DEF_SQLIEN] = "";
-             sprintf(sqlBuf,
-                     "INSERT INTO t_VideoInfo (userId, videoName, picName, videoPath, picPath, rtmp, food, funny, ennegy, dance, music, video, outside, edu, hotdegree) values (%d, '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d);"
-                     ,rq->m_nFileId,info->m_szFileName,info->m_szGifName,info->m_szFilePath,info->m_szGifPath,info->m_szRtmp,
-                     info->m_Hobby[0],info->m_Hobby[1],info->m_Hobby[2],info->m_Hobby[3],info->m_Hobby[4],info->m_Hobby[5],info->m_Hobby[6],info->m_Hobby[7], 0);
-             if(!m_sql->UpdataMysql(sqlBuf)){
-                   cout<<"UpdataMysql error:"<<sqlBuf<<endl;
-             }
-             // 返回
-             STRU_UPLOAD_RS rs;
-             rs.m_nResult = 1;
-             m_tcp->SendData(clientfd,(char*)&rs, sizeof(rs));
-         }
+    // ★ 进度用 max（重传不倒退）
+    int64_t newPos = rq->m_nOffset + rq->m_nBlockLen;
+    if (newPos > info->m_nPos) info->m_nPos = newPos;
 
-         m_mapFileIDToFileInfo.erase(rq->m_nFileId);
-         delete info;
-         info = NULL;
-     }
+    // ★ 终校：文件大小
+    if (info->m_nPos >= info->m_nFileSize) {
+        fclose(info->pFile);
+        info->pFile = NULL;
+
+        // ★ 所有文件都 rename .part → 正式文件（含 GIF）
+        char partPath[_MAX_PATH];
+        sprintf(partPath, "%sflv/%s/%s.part",
+                RootPath, info->m_UserName, info->m_szFileName);
+        if (rename(partPath, info->m_szFilePath) != 0) {
+            cout << "[UploadBlockRq] rename 失败: " << strerror(errno) << endl;
+            // 回退拷贝
+            FILE* srcF = fopen(partPath, "rb");
+            FILE* dstF = fopen(info->m_szFilePath, "wb");
+            if (srcF && dstF) {
+                char buf[4096];
+                size_t n;
+                while ((n = fread(buf, 1, sizeof(buf), srcF)) > 0)
+                    fwrite(buf, 1, n, dstF);
+                fclose(srcF);
+                fclose(dstF);
+                remove(partPath);
+            } else {
+                if (srcF) fclose(srcF);
+                if (dstF) fclose(dstF);
+            }
+        }
+
+        // ★ 非才写数据库表
+        if (strcmp(info->m_szFileType, "gif") != 0) {
+            char sqlBuf[_DEF_SQLIEN] = "";
+            sprintf(sqlBuf,
+                    "INSERT INTO t_VideoInfo (userId, videoName, picName, videoPath, picPath, rtmp, food, funny, ennegy, dance, music, video, outside, edu, hotdegree) values (%d, '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d);"
+                    , info->m_nUserId          // ★ 修正：用 info->m_nUserId，不是 rq->m_nFileId
+                    , info->m_szFileName, info->m_szGifName,
+                    info->m_szFilePath, info->m_szGifPath, info->m_szRtmp,
+                    info->m_Hobby[0], info->m_Hobby[1], info->m_Hobby[2],
+                    info->m_Hobby[3], info->m_Hobby[4], info->m_Hobby[5],
+                    info->m_Hobby[6], info->m_Hobby[7], 0);
+            if (!m_sql->UpdataMysql(sqlBuf)) {
+                cout << "UpdataMysql error:" << sqlBuf << endl;
+            }
+        }
+
+        // ★ 所有文件都回 UPLOAD_RS（含 GIF）
+        STRU_UPLOAD_RS rs;
+        rs.m_nType = _DEF_PACK_UPLOAD_RS;
+        rs.m_nResult = 1;
+        m_tcp->SendData(clientfd, (char*)&rs, sizeof(rs));
+
+        m_mapFileIDToFileInfo.erase(rq->m_nFileId);
+        delete info;
+    }
 }
 
 void CLogic::DownloadRq(sock_fd clientfd, char *szbuf, int nlen)
 {
-     _DEF_COUT_FUNC_
-             // 1. 校验接收的长度是否足够装下结构体
-                 if (nlen < sizeof(STRU_DOWNLOAD_RQ))
-                 {
-                     printf("非法包：长度不够，丢弃！nlen=%d\n", nlen);
-                     return;
-                 }
-                 // 2. 校验指针不能为空
-                 if (!szbuf)
-                 {
-                     printf("szbuf 为空！\n");
-                     return;
-                 }
-     STRU_DOWNLOAD_RQ *rq=(STRU_DOWNLOAD_RQ*)szbuf;
-     list<FileInfo*> fileList;
+    _DEF_COUT_FUNC_
+            // 1. 校验接收的长度是否足够装下结构体
+            if (nlen < sizeof(STRU_DOWNLOAD_RQ))
+    {
+        printf("非法包：长度不够，丢弃！nlen=%d\n", nlen);
+        return;
+    }
+    // 2. 校验指针不能为空
+    if (!szbuf)
+    {
+        printf("szbuf 为空！\n");
+        return;
+    }
+    STRU_DOWNLOAD_RQ *rq=(STRU_DOWNLOAD_RQ*)szbuf;
+    list<FileInfo*> fileList;
 
-     GetFileList(fileList,rq->m_nUserId);
+    GetFileList(fileList,rq->m_nUserId);
 
-     while(fileList.size()>0)
-     {
-         FileInfo *info=fileList.front();
-         fileList.pop_front();
+    while(fileList.size()>0)
+    {
+        FileInfo *info=fileList.front();
+        fileList.pop_front();
 
-         STRU_DOWNLOAD_RS rs;
-         strcpy( rs.m_rtmp , info->m_szRtmp );
-         rs.m_nFileId = info->m_nFileID;
-         rs.m_nVideoId = info->m_VideoID;
-         rs.m_nFileSize = info->m_nFileSize;
-         strcpy( rs.m_szFileName , info->m_szFileName );
+        STRU_DOWNLOAD_RS rs;
+        strcpy( rs.m_rtmp , info->m_szRtmp );
+        rs.m_nFileId = info->m_nFileID;
+        rs.m_nVideoId = info->m_VideoID;
+        rs.m_nFileSize = info->m_nFileSize;
+        strcpy( rs.m_szFileName , info->m_szFileName );
 
-         m_tcp->SendData( clientfd , (char*)&rs , sizeof(rs) );
-         cout<<"Send  STRU_DOWNLOAD_RS: "<<endl;
+        m_tcp->SendData( clientfd , (char*)&rs , sizeof(rs) );
+        cout<<"Send  STRU_DOWNLOAD_RS: "<<endl;
 
-         info->pFile = fopen( info->m_szFilePath , "r");
-         if( !info->pFile )
-         {
-             cout<<"Open file failed: "<<info->m_szFilePath<<endl;
-             delete info;
-             continue;
-         }
-         if( info->pFile )
-         {
-             while(1)
-             {
-                 STRU_FILEBLOCK_RQ blockrq;
-                 cout<<"STRU_FILEBLOCK_RQ"<<endl;
-                 int64_t res = fread( blockrq.m_szFileContent, 1 ,1024 , info->pFile );
-                 if(res <= 0)
-                 {
-                     cout<<"res<=0"<<endl;
-                     // 读取结束或出错
-                     break;
-                 }
-                 blockrq.m_nBlockLen = res;
-                 info->m_nPos += res;
-                 blockrq.m_nFileId=info->m_VideoID;
-                 blockrq.m_nUserId=rq->m_nUserId;
+        info->pFile = fopen( info->m_szFilePath , "r");
+        if( !info->pFile )
+        {
+            cout<<"Open file failed: "<<info->m_szFilePath<<endl;
+            delete info;
+            continue;
+        }
+        if( info->pFile )
+        {
+            while(1)
+            {
+                STRU_FILEBLOCK_RQ blockrq;
+                cout<<"STRU_FILEBLOCK_RQ"<<endl;
+                int64_t res = fread( blockrq.m_szFileContent, 1 ,1024 , info->pFile );
+                if(res <= 0)
+                {
+                    cout<<"res<=0"<<endl;
+                    // 读取结束或出错
+                    break;
+                }
+                blockrq.m_nBlockLen = res;
+                info->m_nPos += res;
+                blockrq.m_nFileId=info->m_VideoID;
+                blockrq.m_nUserId=rq->m_nUserId;
 
-                 int ret = m_tcp->SendData(clientfd, (char*)&blockrq, sizeof(blockrq));
-                 if (ret < 0) {
-                     cout << "SendData failed, client disconnected" << endl;
-                     break; // 退出循环，不再发送
-                 }
+                int ret = m_tcp->SendData(clientfd, (char*)&blockrq, sizeof(blockrq));
+                if (ret < 0) {
+                    cout << "SendData failed, client disconnected" << endl;
+                    break; // 退出循环，不再发送
+                }
 
-                 if( info->m_nPos >= info->m_nFileSize )
-                 {
-                     fclose(info->pFile);
-                     delete info;
-                     info = NULL;
-                     break;
-                 }
-             }
-         }
-     }
-     cout<<"All video send done, close client: "<<clientfd<<endl;
+                if( info->m_nPos >= info->m_nFileSize )
+                {
+                    fclose(info->pFile);
+                    delete info;
+                    info = NULL;
+                    break;
+                }
+            }
+        }
+    }
+    cout<<"All video send done, close client: "<<clientfd<<endl;
 }
 
 void CLogic::UploadHistoryRq(sock_fd clientfd, char *szbuf, int nlen)
@@ -285,8 +391,8 @@ void CLogic::UploadHistoryRq(sock_fd clientfd, char *szbuf, int nlen)
 
     // 查询该用户上传的所有视频
     sprintf(sqlBuf,
-        "select videoId, picName, picPath, rtmp from t_VideoInfo where userId = %d order by hotdegree desc;",
-        rq->m_nUserId);
+            "select videoId, picName, picPath, rtmp from t_VideoInfo where userId = %d order by hotdegree desc;",
+            rq->m_nUserId);
 
     if(!m_sql->SelectMysql(sqlBuf, 4, resList)) {
         cout << "SelectMysql error:" << sqlBuf << endl;
@@ -378,7 +484,7 @@ void CLogic::GetFileList(list<FileInfo*>&fileList,int userid)
         cout<<"[GetFileList] Count result empty!"<<endl;
         return;
 
-        }
+    }
     nCount=atoi(resList.front().c_str());
     cout << "[GetFileList] Video count: " << nCount << endl;
     if(nCount==0)
@@ -387,8 +493,8 @@ void CLogic::GetFileList(list<FileInfo*>&fileList,int userid)
         sprintf(sqlBuf,"delete from t_UserRecv where userId = %d",userid);
         cout << "[GetFileList] Select SQL: " << sqlBuf << endl;
         if(!m_sql->UpdataMysql(sqlBuf)){
-              cout<<"UpdataMysql error:"<<sqlBuf<<endl;
-              return;
+            cout<<"UpdataMysql error:"<<sqlBuf<<endl;
+            return;
         }
     }
 
@@ -428,11 +534,11 @@ void CLogic::GetFileList(list<FileInfo*>&fileList,int userid)
 
         info->pFile=fopen(info->m_szFilePath,"r");
         if(!info->pFile)
-                {
-                    cout<<"[GetFileList] Open file failed: "<<info->m_szFilePath<<endl;
-                    delete info;
-                    continue;
-                }
+        {
+            cout<<"[GetFileList] Open file failed: "<<info->m_szFilePath<<endl;
+            delete info;
+            continue;
+        }
         fseek(info->pFile,0,SEEK_END);
         info->m_nFileSize=ftell(info->pFile);
         fseek(info->pFile,0,SEEK_SET);
@@ -443,8 +549,8 @@ void CLogic::GetFileList(list<FileInfo*>&fileList,int userid)
         cout << "[GetFileList] Add to fileList, size now: " << fileList.size() << endl;
         sprintf(sqlBuf,"insert into t_UserRecv values(%d ,%d);",userid,info->m_VideoID);
         if(!m_sql->UpdataMysql(sqlBuf)){
-              cout<<"UpdataMysql error:"<<sqlBuf<<endl;
-              return;
+            cout<<"UpdataMysql error:"<<sqlBuf<<endl;
+            return;
         }
     }
     cout << "[GetFileList] Done, fileList size: " << fileList.size() << endl;
@@ -478,9 +584,9 @@ void CLogic::LiveStartRq(sock_fd clientfd, char* szbuf, int nlen)
 
     // 4. 插入新的直播记录
     sprintf(sqlBuf,
-        "INSERT INTO t_LiveStream (userId, streamKey, title, startTime, status) "
-        "VALUES (%d, '%s', '%s', NOW(), 1);",
-        rq->m_nUserId, streamKey, rq->m_szTitle);
+            "INSERT INTO t_LiveStream (userId, streamKey, title, startTime, status) "
+            "VALUES (%d, '%s', '%s', NOW(), 1);",
+            rq->m_nUserId, streamKey, rq->m_szTitle);
 
     if (!m_sql->UpdataMysql(sqlBuf)) {
         rs.m_nResult = 0;
@@ -503,8 +609,8 @@ void CLogic::LiveStopRq(sock_fd clientfd, char* szbuf, int nlen)
 
     char sqlBuf[_DEF_SQLIEN] = "";
     sprintf(sqlBuf,
-        "UPDATE t_LiveStream SET status = 0 WHERE userId = %d AND status = 1;",
-        rq->m_nUserId);
+            "UPDATE t_LiveStream SET status = 0 WHERE userId = %d AND status = 1;",
+            rq->m_nUserId);
 
     rs.m_nResult = m_sql->UpdataMysql(sqlBuf) ? 1 : 0;
     m_tcp->SendData(clientfd, (char*)&rs, sizeof(rs));
@@ -516,11 +622,11 @@ void CLogic::LiveListRq(sock_fd clientfd, char* szbuf, int nlen)
     // 查询所有正在直播的条目，关联用户名
     char sqlBuf[_DEF_SQLIEN] = "";
     sprintf(sqlBuf,
-        "SELECT ls.streamId, ls.userId, u.name, ls.title, ls.streamKey "
-        "FROM t_LiveStream ls "
-        "JOIN t_UserData u ON ls.userId = u.id "
-        "WHERE ls.status = 1 "
-        "ORDER BY ls.startTime DESC;");
+            "SELECT ls.streamId, ls.userId, u.name, ls.title, ls.streamKey "
+            "FROM t_LiveStream ls "
+            "JOIN t_UserData u ON ls.userId = u.id "
+            "WHERE ls.status = 1 "
+            "ORDER BY ls.startTime DESC;");
 
     list<string> resList;
     if (!m_sql->SelectMysql(sqlBuf, 5, resList)) {

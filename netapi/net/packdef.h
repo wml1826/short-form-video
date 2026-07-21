@@ -13,7 +13,7 @@
 #define _MAX_SIZE           (40)
 #define _MAX_PATH           (260)
 #define DEF_HOBBY_COUNT     (8)
-#define DEF_SSERVER_IP      "192.168.43.239"
+#define DEF_SSERVER_IP      "172.20.10.5"
 
 //自定义协议   先写协议头 再写协议结构
 //登录 注册 获取好友信息 添加好友 聊天 发文件 下线请求
@@ -45,6 +45,15 @@
 #define _DEF_PACK_LIVE_LIST_RQ    (_DEF_PACK_BASE + 15)   // 获取直播列表请求
 #define _DEF_PACK_LIVE_LIST_RS    (_DEF_PACK_BASE + 16)   // 获取直播列表回复（一包一路直播）
 #define _DEF_PACK_LIVE_LIST_END   (_DEF_PACK_BASE + 17)   // 直播列表发送完毕标志
+
+// ===== 断点续传 =====
+#define _DEF_PACK_UPLOAD_RESUME_RQ  (_DEF_PACK_BASE + 18)
+#define _DEF_PACK_UPLOAD_RESUME_RS  (_DEF_PACK_BASE + 19)
+
+#define upload_resume_new      0
+#define upload_resume_resume   1
+#define upload_resume_mismatch 2
+#define upload_resume_fail    3
 
 //返回的结果
 //注册请求的结果
@@ -175,12 +184,14 @@ typedef struct STRU_FILEBLOCK_RQ
         m_nUserId = 0;
         m_nFileId =0;
         m_nBlockLen =0;
+        m_nOffset = 0;
         ZeroMemory(m_szFileContent,_DEF_CONTENT_SIZE);
     }
     PackType m_nType; //包类型
     int m_nUserId; //用户 ID
     int m_nFileId; //文件 id 用于区分文件
     int m_nBlockLen; //文件写入大小
+    int64_t m_nOffset;
     char m_szFileContent[_DEF_CONTENT_SIZE];
 }STRU_FILEBLOCK_RQ;
 
@@ -293,3 +304,43 @@ typedef struct STRU_LIVE_LIST_END {
     STRU_LIVE_LIST_END() { memset(this, 0, sizeof(*this)); }
 } STRU_LIVE_LIST_END;
 
+// 续传查询请求（m_nClientUploaded 放最后，前半部分与 STRU_UPLOAD_RQ 一致）
+typedef struct STRU_UPLOAD_RESUME_RQ
+{
+    STRU_UPLOAD_RESUME_RQ()
+    {
+        m_nType = _DEF_PACK_UPLOAD_RESUME_RQ;
+        m_UserId = 0;
+        m_nFileId = 0;
+        m_nFileSize = 0;
+        m_nClientUploaded = 0;
+        memset(m_szFileName, 0, _MAX_PATH);
+        memset(m_szGifName, 0, _MAX_PATH);
+        memset(m_szFileType, 0, _MAX_SIZE);
+        memset(m_szHobby, 0, DEF_HOBBY_COUNT);
+    }
+    PackType m_nType;
+    int m_UserId;
+    int m_nFileId;
+    int64_t m_nFileSize;
+    char m_szHobby[DEF_HOBBY_COUNT];
+    char m_szFileName[_MAX_PATH];
+    char m_szGifName[_MAX_PATH];
+    char m_szFileType[_MAX_SIZE];
+    int64_t m_nClientUploaded;
+} STRU_UPLOAD_RESUME_RQ;
+
+typedef struct STRU_UPLOAD_RESUME_RS
+{
+    STRU_UPLOAD_RESUME_RS()
+    {
+        m_nType = _DEF_PACK_UPLOAD_RESUME_RS;
+        m_nResult = upload_resume_new;
+        m_nFileId = 0;
+        m_nResumeFrom = 0;
+    }
+    PackType m_nType;
+    int m_nResult;
+    int m_nFileId;
+    int64_t m_nResumeFrom;
+} STRU_UPLOAD_RESUME_RS;

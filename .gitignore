@@ -2,3 +2,4 @@
 docs/*.md
 *.pro.user
 output/
+*.md

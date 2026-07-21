@@ -27,7 +27,7 @@ public:
     //登录
     void LoginRq(sock_fd clientfd, char*szbuf, int nlen);
     //上传
-    void UploadRq(sock_fd clientfd, char*szbuf, int nlen);
+    void UploadResumeRq(sock_fd clientfd, char*szbuf, int nlen);
     //上传的文件块
     void UploadBlockRq(sock_fd clientfd, char*szbuf, int nlen);
     //下载
